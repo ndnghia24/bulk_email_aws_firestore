@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
                 Content: '<strong>Đừng bỏ lỡ khuyến mãi hôm nay của chúng tôi!</strong>'
               }
             ],
-            From: 'ngoducnghia01648927528@gmail.com',
+            From: 'noreply@yourdomain.com',
             Subject: 'Khuyến mãi hôm nay!',
           },
           Options: {
