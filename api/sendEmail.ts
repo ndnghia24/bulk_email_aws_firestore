@@ -5,7 +5,7 @@ const AWS = require('aws-sdk');  // Import AWS SDK
 AWS.config.update({
   accessKeyId: process.env.AWS_ACCESS_KEY_NDNGHIA24,
   secretAccessKey: process.env.AWS_SECRET_KEY_NDNGHIA24,
-  region: process.env.AWS_REGION || 'ap-southeast-2',
+  region: process.env.AWS_REGION_NDNGHIA24 || 'ap-southeast-2',
 });
 
 const ses = new AWS.SES();  // Tạo instance của SES
