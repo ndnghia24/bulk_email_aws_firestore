@@ -1,4 +1,12 @@
-// api/sendEmail.js
+require('dotenv').config();  // Tải các biến môi trường từ file .env
+const axios = require('axios');
+const querystring = require('querystring');
+
+// Lấy thông tin từ .env
+const AWS_ACCESS_KEY = process.env.AWS_ACCESS_KEY;  // Lấy AWS_ACCESS_KEY từ .env
+const AWS_SECRET_KEY = process.env.AWS_SECRET_KEY;  // Lấy AWS_SECRET_KEY từ .env
+const AWS_REGION = process.env.AWS_REGION || 'us-east-1';  // Lấy AWS_REGION từ .env hoặc mặc định là us-east-1
+const ENDPOINT = `https://email.${AWS_REGION}.amazonaws.com/`;  // Cập nhật endpoint với region từ .env
 
 module.exports = async (req, res) => {
   // Đảm bảo chỉ chấp nhận phương thức POST
@@ -6,53 +14,29 @@ module.exports = async (req, res) => {
     return res.status(405).send('Method Not Allowed');
   }
 
-  const fetch = require('node-fetch');
-  
-  try {
-      // Thực hiện gửi email qua Elastic Email API
-      const response = await fetch('https://api.elasticemail.com/v4/emails', {
-        method: 'POST',
-        body: JSON.stringify({
-          Recipients: [
-            {
-              Email: 'ngoducnghia01648927528@gmail.com',
-              Name: 'Ngô Đức Nghĩa'
-            }
-          ],
-          Content: {
-            Body: [
-              {
-                ContentType: 'HTML',
-                Content: '<strong>Đừng bỏ lỡ khuyến mãi hôm nay của chúng tôi!</strong>'
-              }
-            ],
-            From: 'noreply@yourdomain.com',
-            Subject: 'Khuyến mãi hôm nay!',
-          },
-          Options: {
-            TrackOpens: true,
-            TrackClicks: true
-          }
-        }),
-        headers: {
-          'Content-Type': 'application/json',
-          'X-ElasticEmail-ApiKey': '1D379C34823C8E62F6001EEC64879FDB3ECBFC6CE8F09F51B6BA441C6001E81E3FAA59498BE3F3FE370BECAD75D478B2' // Thêm API key vào header
-        }
-      });
-    
-      const data = await response.json();
+  const body = querystring.stringify({
+    'Action': 'SendEmail',
+    'Source': 'ngoducnghia01648927528@gmail.com	',
+    'Destination.ToAddresses.member.1': 'success@simulator.amazonses.com', 
+    'Message.Subject.Data': 'Khuyến mãi hôm nay!',
+    'Message.Body.Html.Data': '<html><body><h1>Đừng bỏ lỡ khuyến mãi hôm nay của chúng tôi!</h1></body></html>',  // Nội dung email
+    'Version': '2010-12-01'
+  });
 
-      // Kiểm tra kết quả từ Elastic Email API
-      if (data.TransactionID) {
-        return res.status(200).send('Email sent successfully');
-      } else {
-        // In ra thông tin chi tiết lỗi
-        console.error('Error Response:', data);
-        return res.status(500).send(`Failed to send email. Response: ${JSON.stringify(data)}`);
-      }
+  // Tạo chữ ký cho yêu cầu (AWS signature - cần thực hiện việc này)
+  const headers = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+    'X-Amz-Date': new Date().toISOString().replace(/[:-]|\.\d{3}/g, ''),
+    // 'Authorization': `AWS4-HMAC-SHA256 ${signature}`  // Cần tính toán chữ ký AWS (signature) đúng
+  };
+
+  try {
+    // Gửi yêu cầu POST tới AWS SES API
+    const response = await axios.post(ENDPOINT, body, { headers });
+    console.log('Email sent successfully:', response.data);
+    return res.status(200).send('Email sent successfully');
   } catch (error) {
-      // In ra lỗi nếu có sự cố trong quá trình gửi email
-      console.error('Error during email sending:', error);
-      return res.status(500).send(`Failed to send email. Error: ${error.message}`);
+    console.error('Error during email sending:', error.response?.data || error.message);
+    return res.status(500).send(`Failed to send email. Error: ${error.response?.data || error.message}`);
   }
 };
