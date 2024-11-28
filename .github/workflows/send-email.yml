@@ -1,0 +1,22 @@
+name: Send Daily Email
+
+on:
+  # Thêm trigger thủ công
+  workflow_dispatch:
+    inputs:
+      send_test_email:
+        description: 'Send a test email now'
+        required: true
+        default: 'yes'
+
+jobs:
+  send-email:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Trigger Vercel Serverless Function
+        run: |
+          curl -X GET https://nodejs-serverless-function-express-lac-pi.vercel.app/api/sendEmail
