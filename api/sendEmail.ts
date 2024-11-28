@@ -2,7 +2,7 @@
 
 module.exports = async (req, res) => {
   // Đảm bảo chỉ chấp nhận phương thức POST
-  if (req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
 
@@ -13,7 +13,6 @@ module.exports = async (req, res) => {
       const response = await fetch('https://api.elasticemail.com/v4/emails', {
         method: 'POST',
         body: JSON.stringify({
-          apikey: 'D20964EDBE58B2E49F218BD7DC27F375B64996875A17F2B00796A7F041ECFDD9A5BF621B0198508885D211A9A2E87484',
           Recipients: [
             {
               Email: 'ngoducnghia01648927528@gmail.com',
@@ -41,7 +40,8 @@ module.exports = async (req, res) => {
           }
         }),
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'X-ElasticEmail-ApiKey': '1D379C34823C8E62F6001EEC64879FDB3ECBFC6CE8F09F51B6BA441C6001E81E3FAA59498BE3F3FE370BECAD75D478B2' // Thêm API key vào header
         }
       });
     
