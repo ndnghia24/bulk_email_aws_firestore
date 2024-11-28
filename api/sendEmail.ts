@@ -28,13 +28,8 @@ module.exports = async (req, res) => {
             ],
             From: 'ngoducnghia01648927528@gmail.com',
             Subject: 'Khuyến mãi hôm nay!',
-            TemplateName: 'Template01'
           },
           Options: {
-            TimeOffset: null,
-            PoolName: 'My Custom Pool',
-            ChannelName: 'Channel01',
-            Encoding: 'UserProvided',
             TrackOpens: true,
             TrackClicks: true
           }
