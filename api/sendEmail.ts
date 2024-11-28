@@ -3,8 +3,8 @@ const AWS = require('aws-sdk');  // Import AWS SDK
 
 // Cấu hình AWS SDK với thông tin xác thực từ file .env
 AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY,
-  secretAccessKey: process.env.AWS_SECRET_KEY,
+  accessKeyId: process.env.AWS_ACCESS_KEY_NDNGHIA24,
+  secretAccessKey: process.env.AWS_SECRET_KEY_NDNGHIA24,
   region: process.env.AWS_REGION || 'us-east-1',  // Nếu không có region trong .env thì mặc định là 'us-east-1'
 });
 
