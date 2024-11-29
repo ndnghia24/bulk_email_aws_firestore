@@ -1,50 +1,42 @@
-import fs from 'fs';
-import path from 'path';
-import fetch from 'node-fetch'; // Import thư viện fetch để gọi API sendVerificationEmail
+import { db } from './firebaseAdmin'; // Import cấu hình Firebase
+import fetch from 'node-fetch';
 
-// Đường dẫn đến file JSON lưu trữ subscribers
-const filePath = path.resolve('./data/subscribers.json');
-
-// Đọc danh sách subscribers từ file JSON
-const getSubscribers = () => {
-  if (fs.existsSync(filePath)) {
-    const fileData = fs.readFileSync(filePath);
-    return JSON.parse(fileData);
-  }
-  return [];
+// Lấy danh sách subscribers từ Firestore
+const getSubscribers = async () => {
+  const snapshot = await db.collection('subscribers').get();
+  const subscribers = snapshot.docs.map(doc => doc.data());
+  return subscribers;
 };
 
-// Lưu danh sách subscribers vào file JSON
-const saveSubscribers = (subscribers) => {
-  fs.writeFileSync(filePath, JSON.stringify(subscribers, null, 2));
+// Lưu danh sách subscribers vào Firestore
+const saveSubscribers = async (subscribers) => {
+  const batch = db.batch();
+  subscribers.forEach(subscriber => {
+    const docRef = db.collection('subscribers').doc(subscriber.email);
+    batch.set(docRef, subscriber);
+  });
+  await batch.commit();
 };
 
 export default async function handler(req, res) {
   switch (req.method) {
     case 'POST':
-      // Thêm subscriber mới vào danh sách
       const { email, location } = req.body;
       if (!email || !location) {
         return res.status(400).send('Invalid or missing email or location');
       }
 
-      const subscribersPost = getSubscribers();
+      const subscribersPost = await getSubscribers();
 
-      // Kiểm tra xem email đã có trong danh sách chưa
       const existingSubscriber = subscribersPost.find(subscriber => subscriber.email === email);
       if (existingSubscriber) {
         return res.status(200).json({ message: 'Email already exists, skipping verification.' });
       }
 
-      // Thêm email và location vào danh sách
       subscribersPost.push({ email, location });
-      
-      return res.status(200).json({ subscribersPost });
-      saveSubscribers(subscribersPost);
+      await saveSubscribers(subscribersPost);
 
-      // Gửi yêu cầu tới API sendVerificationEmail để gửi email xác nhận
       try {
-        // Gọi API nội bộ bằng relative URL
         const response = await fetch('https://nodejs-serverless-function-express-lac-pi.vercel.app/api/verifyEmail', {
           method: 'POST',
           headers: {
@@ -64,20 +56,19 @@ export default async function handler(req, res) {
       }
 
     case 'DELETE':
-      // Xoá subscriber khỏi danh sách theo email
       const { emailToDelete } = req.body;
       if (!emailToDelete) {
         return res.status(400).send('Invalid email');
       }
 
-      let subscribersDelete = getSubscribers();
+      let subscribersDelete = await getSubscribers();
       subscribersDelete = subscribersDelete.filter(subscriber => subscriber.email !== emailToDelete);
-      saveSubscribers(subscribersDelete);
+      await saveSubscribers(subscribersDelete);
+
       return res.status(200).json({ message: 'Subscriber deleted.' });
 
     case 'GET':
-      // Lấy danh sách subscribers
-      const subscribersGet = getSubscribers();
+      const subscribersGet = await getSubscribers();
       return res.status(200).json(subscribersGet);
 
     default:
