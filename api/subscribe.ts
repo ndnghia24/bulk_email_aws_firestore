@@ -34,7 +34,7 @@ export default async function handler(req, res) {
       }
 
       subscribersPost.push({ email, location });
-      return res.status(200).json({ message: 'Subscriber added.' });
+      return res.status(200).json({ subscribersPost });
       await saveSubscribers(subscribersPost);
 
       try {
