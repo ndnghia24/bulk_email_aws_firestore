@@ -40,7 +40,7 @@ export default async function handler(req, res) {
 
     try {
       // Gọi API gửi email cho từng người (dùng route đã có)
-      const response = await fetch('/api/sendEmail', {
+      const response = await fetch('https://nodejs-serverless-function-express-lac-pi.vercel.app/api/sendEmail', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
