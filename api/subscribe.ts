@@ -12,8 +12,10 @@ const getSubscribers = async () => {
 const saveSubscribers = async (subscribers) => {
   const batch = db.batch();
   subscribers.forEach(subscriber => {
-    const docRef = db.collection('subscribers').doc(subscriber.email);
-    batch.set(docRef, subscriber);
+    if (subscriber.email) { // Ensure email is valid
+      const docRef = db.collection('subscribers').doc(subscriber.email);
+      batch.set(docRef, subscriber);
+    }
   });
   await batch.commit();
 };
@@ -34,7 +36,6 @@ export default async function handler(req, res) {
       }
 
       subscribersPost.push({ email, location });
-      return res.status(200).json({ subscribersPost });
       await saveSubscribers(subscribersPost);
 
       try {
