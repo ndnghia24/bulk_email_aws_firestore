@@ -31,7 +31,7 @@ export default async function handler(req, res) {
 
   for (const subscriber of subscribers) {
     const { email, location } = subscriber;
-    const subject = 'Your Subscription Confirmation';
+    const subject = 'Q-Weather-Forecast: Your Location Information';
     const body = createEmailBody(email, location);
 
     try {
