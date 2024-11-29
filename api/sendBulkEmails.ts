@@ -7,12 +7,48 @@ const getSubscribers = async () => {
   return snapshot.docs.map(doc => doc.data());
 };
 
-// Đọc nội dung cần gửi cho từng người
-const createEmailBody = (email: string, location: string) => {
+// Fetch thông tin thời tiết từ WeatherAPI.com
+const fetchWeatherData = async (location: string) => {
+  const apiKey = process.env.WEATHER_API_KEY;
+  const url = `https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(location)}`;
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch weather data for location: ${location}`);
+    }
+    const data = await response.json();
+
+    return {
+      temperature: data.current.temp_c, // Nhiệt độ (°C)
+      weather: data.current.condition.text, // Mô tả điều kiện thời tiết
+      icon: data.current.condition.icon, // URL của icon thời tiết
+    };
+  } catch (error) {
+    console.error(`Error fetching weather data: ${error.message}`);
+    return null;
+  }
+};
+
+// Tạo nội dung email với thông tin thời tiết
+const createEmailBody = (email: string, location: string, weatherData: any) => {
+  if (!weatherData) {
+    return `
+      <h1>Hello, ${email}!</h1>
+      <p>We were unable to fetch the weather information for your location (${location}).</p>
+      <p>Please try again later.</p>
+    `;
+  }
+
   return `
     <h1>Hello, ${email}!</h1>
-    <p>We are happy to inform you that your location is ${location}.</p>
-    <p>Thank you for subscribing to our service!</p>
+    <p>Here is the latest weather update for your location, <strong>${location}</strong>:</p>
+    <ul>
+      <li><strong>Temperature:</strong> ${weatherData.temperature}°C</li>
+      <li><strong>Condition:</strong> ${weatherData.weather}</li>
+    </ul>
+    <img src="https:${weatherData.icon}" alt="Weather Icon" />
+    <p>Thank you for subscribing to Q-Weather-Forecast!</p>
   `;
 };
 
@@ -26,13 +62,16 @@ export default async function handler(req, res) {
     return res.status(404).send('No subscribers found');
   }
 
-  const results = []; // Mảng để lưu kết quả của từng email
-  const errors = []; // Mảng để lưu các lỗi nếu có
+  const results = [];
+  const errors = [];
 
   for (const subscriber of subscribers) {
     const { email, location } = subscriber;
+
+    // Fetch weather data for the location
+    const weatherData = await fetchWeatherData(location);
     const subject = 'Q-Weather-Forecast: Your Location Information';
-    const body = createEmailBody(email, location);
+    const body = createEmailBody(email, location, weatherData);
 
     try {
       const response = await fetch('https://nodejs-serverless-function-express-lac-pi.vercel.app/api/sendEmail', {
