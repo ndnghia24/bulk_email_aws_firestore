@@ -29,7 +29,7 @@ module.exports = async (req, res) => {
 
   // Thiết lập các tham số email
   const params = {
-    Source: 'ngoducnghia01648927528@gmail.com',
+    Source: 'noreply.weatherforecast.go@gmail.com',
     Destination: {
       ToAddresses: ['success@simulator.amazonses.com'],
       CcAddresses: ccAddresses,
