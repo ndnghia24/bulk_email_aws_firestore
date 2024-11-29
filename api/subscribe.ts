@@ -12,7 +12,7 @@ const getSubscribers = async () => {
 const saveSubscribers = async (subscribers) => {
   const batch = db.batch();
   subscribers.forEach(subscriber => {
-    if (subscriber.email) { // Ensure email is valid
+    if (subscriber.email) {
       const docRef = db.collection('subscribers').doc(subscriber.email);
       batch.set(docRef, subscriber);
     }
@@ -62,12 +62,16 @@ export default async function handler(req, res) {
       if (!emailToDelete) {
         return res.status(400).send('Invalid email');
       }
-
-      let subscribersDelete = await getSubscribers();
-      subscribersDelete = subscribersDelete.filter(subscriber => subscriber.email !== emailToDelete);
-      await saveSubscribers(subscribersDelete);
-
-      return res.status(200).json({ message: 'Subscriber deleted.' });
+    
+      try {
+        const docRef = db.collection('subscribers').doc(emailToDelete);
+        await docRef.delete(); // Xóa tài liệu trực tiếp
+        return res.status(200).json({ message: 'Subscriber deleted.' });
+      } catch (error) {
+        console.error('Error deleting subscriber:', error);
+        return res.status(500).json({ error: 'Failed to delete subscriber.' });
+      }
+      
 
     case 'GET':
       const subscribersGet = await getSubscribers();
