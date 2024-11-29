@@ -10,6 +10,7 @@
   "dependencies": {
     "dotenv": "^10.0.0",
     "aws-sdk": "^2.1200.0",
-    "firebase-admin": "^11.0.0"
+    "firebase-admin": "^11.0.0",
+    "cors": "^2.8.5",
   }
 }
