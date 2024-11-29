@@ -31,6 +31,9 @@ export default async function handler(req, res) {
     return res.status(404).send('No subscribers found');
   }
 
+  const results = []; // Mảng để lưu kết quả của từng email
+  const errors = []; // Mảng để lưu các lỗi nếu có
+
   // Lặp qua các subscribers và gửi email cho mỗi người
   for (const subscriber of subscribers) {
     const { email, location } = subscriber;
@@ -52,16 +55,36 @@ export default async function handler(req, res) {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to send email');
+      if (response.ok) {
+        const rawBody = await response.text(); // Đọc raw body từ phản hồi
+        results.push({
+          email,
+          status: 'success',
+          message: `Email sent to ${email} successfully.`,
+          response: rawBody, // Lưu raw body
+        });
+      } else {
+        const errorBody = await response.text();
+        errors.push({
+          email,
+          status: 'failed',
+          message: `Failed to send email to ${email}: ${errorBody}`,
+        });
       }
-
-      console.log(`Email sent to ${email} successfully.`);
     } catch (error) {
-      console.error(`Failed to send email to ${email}:`, error.message);
-      continue; // Tiếp tục gửi email cho các subscribers còn lại nếu có lỗi
+      // Lưu thông báo lỗi nếu có
+      errors.push({
+        email,
+        status: 'failed',
+        message: `Error sending email to ${email}: ${error.message}`,
+      });
     }
   }
 
-  return res.status(200).json({ message: 'Bulk email sending completed.' });
+  // Trả về kết quả và lỗi
+  return res.status(200).json({
+    message: 'Bulk email sending completed.',
+    results: results,
+    errors: errors,
+  });
 }
