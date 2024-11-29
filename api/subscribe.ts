@@ -43,7 +43,7 @@ export default async function handler(req, res) {
       // Gửi yêu cầu tới API sendVerificationEmail để gửi email xác nhận
       try {
         // Gọi API nội bộ bằng relative URL
-        const response = await fetch('/api/verifyEmail', {
+        const response = await fetch('https://nodejs-serverless-function-express-lac-pi.vercel.app/api/verifyEmail', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
