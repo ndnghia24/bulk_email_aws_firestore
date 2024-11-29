@@ -32,7 +32,7 @@ export default async function handler(req, res) {
 
       const existingSubscriber = subscribersPost.find(subscriber => subscriber.email === email);
       if (existingSubscriber) {
-        return res.status(200).json({ message: 'Email already exists, skipping verification.' });
+        return res.status(200).json({ message: 'Subscriber added.' });
       }
 
       subscribersPost.push({ email, location });
@@ -51,7 +51,7 @@ export default async function handler(req, res) {
           throw new Error('Failed to send verification email');
         }
 
-        return res.status(200).json({ message: 'Subscriber added and verification email sent.' });
+        return res.status(200).json({ message: 'Verification email sent. Please check your inbox.' });
       } catch (error) {
         console.error('Error sending verification email:', error);
         return res.status(500).json({ error: `Failed to send verification email: ${error.message}` });
