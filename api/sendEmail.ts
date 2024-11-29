@@ -12,24 +12,37 @@ const ses = new AWS.SES();  // Tạo instance của SES
 
 module.exports = async (req, res) => {
   // Đảm bảo chỉ chấp nhận phương thức POST
-  if (req.method !== 'GET') {
+  if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
+  }
+
+  const { ccAddresses, subject, body } = req.body; // Lấy dữ liệu từ body của yêu cầu
+
+  // Kiểm tra dữ liệu đầu vào
+  if (!ccAddresses || !Array.isArray(ccAddresses) || ccAddresses.length === 0) {
+    return res.status(400).send('Invalid or missing ccAddresses');
+  }
+  if (!subject || typeof subject !== 'string') {
+    return res.status(400).send('Invalid or missing subject');
+  }
+  if (!body || typeof body !== 'string') {
+    return res.status(400).send('Invalid or missing body');
   }
 
   // Thiết lập các tham số email
   const params = {
-    Source: 'ngoducnghia01648927528@gmail.com',  // Thay thế bằng email đã xác minh trong SES
+    Source: 'ngoducnghia01648927528@gmail.com', // Địa chỉ email nguồn (đã xác minh trong SES)
     Destination: {
-      ToAddresses: ['success@simulator.amazonses.com'],  // Email người nhận chính
-      CcAddresses: ['ngoducnghia01648927528@gmail.com'],  // Thêm email CC
+      ToAddresses: ['success@simulator.amazonses.com'], // Thay đổi nếu cần
+      CcAddresses: ccAddresses, // Địa chỉ email Cc nhận từ req.body
     },
     Message: {
       Subject: {
-        Data: 'Khuyến mãi hôm nay!',
+        Data: subject, // Tiêu đề nhận từ req.body
       },
       Body: {
         Html: {
-          Data: '<html><body><h1>Đừng bỏ lỡ khuyến mãi hôm nay của chúng tôi!</h1></body></html>',
+          Data: body, // Nội dung nhận từ req.body
         },
       },
     },
@@ -39,9 +52,9 @@ module.exports = async (req, res) => {
     // Gửi email qua SES
     const response = await ses.sendEmail(params).promise();
     console.log('Email sent successfully:', response);
-    return res.status(200).send('Email sent successfully');
+    return res.status(200).json({ message: 'Email sent successfully', response });
   } catch (error) {
     console.error('Error during email sending:', error);
-    return res.status(500).send(`Failed to send email. Error: ${error.message}`);
+    return res.status(500).json({ error: `Failed to send email. Error: ${error.message}` });
   }
 };
