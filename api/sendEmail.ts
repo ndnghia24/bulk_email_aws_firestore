@@ -15,14 +15,6 @@ module.exports = async (req, res) => {
     return res.status(405).send('Method Not Allowed');
   }
 
-  // Authentication
-  const clientApiKey = req.headers['x-api-key'];
-  const validApiKey = process.env.API_KEY_NDNGHIA24;
-
-  if (!clientApiKey || clientApiKey !== validApiKey) {
-    return res.status(403).send({ error: 'Forbidden: Invalid or missing API Key' });
-  }
-
   const { ccAddresses, subject, body } = req.body;
 
   if (!ccAddresses || !Array.isArray(ccAddresses) || ccAddresses.length === 0) {
