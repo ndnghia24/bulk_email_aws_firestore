@@ -38,8 +38,9 @@ export default async function handler(req, res) {
 
       // Thêm email và location vào danh sách
       subscribersPost.push({ email, location });
-      return res.status(200).json({ message: 'Subscriber added.' });
       saveSubscribers(subscribersPost);
+
+      return res.status(200).json({ message: 'Subscriber added.' });
 
       // Gửi yêu cầu tới API sendVerificationEmail để gửi email xác nhận
       try {
