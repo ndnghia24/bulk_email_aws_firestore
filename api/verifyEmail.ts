@@ -13,7 +13,15 @@ const ses = new AWS.SES(); // Tạo instance SES
 module.exports = async (req, res) => {
   // Kiểm tra nếu phương thức không phải POST
   if (req.method !== 'POST') {
-    return res.status(405).send({ error: 'Method Not Allowed. Use POST instead.' });
+    return res.status(405).send({ error: 'Method Not Allowed.' });
+  }
+
+  // Authentication
+  const clientApiKey = req.headers['x-api-key'];
+  const validApiKey = process.env.API_KEY_NDNGHIA24;
+
+  if (!clientApiKey || clientApiKey !== validApiKey) {
+    return res.status(403).send({ error: 'Forbidden: Invalid or missing API Key' });
   }
 
   // Lấy email từ body request

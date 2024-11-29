@@ -8,17 +8,23 @@ AWS.config.update({
   region: process.env.AWS_REGION_NDNGHIA24 || 'ap-southeast-2',
 });
 
-const ses = new AWS.SES();  // Tạo instance của SES
+const ses = new AWS.SES();
 
 module.exports = async (req, res) => {
-  // Đảm bảo chỉ chấp nhận phương thức POST
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
 
-  const { ccAddresses, subject, body } = req.body; // Lấy dữ liệu từ body của yêu cầu
+  // Authentication
+  const clientApiKey = req.headers['x-api-key'];
+  const validApiKey = process.env.API_KEY_NDNGHIA24;
 
-  // Kiểm tra dữ liệu đầu vào
+  if (!clientApiKey || clientApiKey !== validApiKey) {
+    return res.status(403).send({ error: 'Forbidden: Invalid or missing API Key' });
+  }
+
+  const { ccAddresses, subject, body } = req.body;
+
   if (!ccAddresses || !Array.isArray(ccAddresses) || ccAddresses.length === 0) {
     return res.status(400).send('Invalid or missing ccAddresses');
   }
@@ -31,10 +37,10 @@ module.exports = async (req, res) => {
 
   // Thiết lập các tham số email
   const params = {
-    Source: 'ngoducnghia01648927528@gmail.com', // Địa chỉ email nguồn (đã xác minh trong SES)
+    Source: 'ngoducnghia01648927528@gmail.com',
     Destination: {
-      ToAddresses: ['success@simulator.amazonses.com'], // Thay đổi nếu cần
-      CcAddresses: ccAddresses, // Địa chỉ email Cc nhận từ req.body
+      ToAddresses: ['success@simulator.amazonses.com'],
+      CcAddresses: ccAddresses,
     },
     Message: {
       Subject: {
