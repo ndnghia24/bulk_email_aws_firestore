@@ -15,8 +15,11 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Cho phép các phương thức
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Cho phép các headers
 
-  
-  if (req.method !== 'POST' && req.method !== 'OPTIONS') {
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
+  if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
 
