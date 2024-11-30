@@ -11,6 +11,10 @@ AWS.config.update({
 const ses = new AWS.SES(); // Tạo instance SES
 
 module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Cho phép tất cả các nguồn gốc
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Cho phép các phương thức
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Cho phép các headers
+
   // Kiểm tra nếu phương thức không phải POST
   if (req.method !== 'POST' && req.method !== 'OPTIONS') {
     return res.status(405).send({ error: 'Method Not Allowed. Use POST instead.' });

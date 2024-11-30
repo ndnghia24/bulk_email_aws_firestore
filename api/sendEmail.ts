@@ -11,6 +11,11 @@ AWS.config.update({
 const ses = new AWS.SES();
 
 module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // Cho phép tất cả các nguồn gốc
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE'); // Cho phép các phương thức
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization'); // Cho phép các headers
+
+  
   if (req.method !== 'POST' && req.method !== 'OPTIONS') {
     return res.status(405).send('Method Not Allowed');
   }
