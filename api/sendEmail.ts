@@ -11,7 +11,7 @@ AWS.config.update({
 const ses = new AWS.SES();
 
 module.exports = async (req, res) => {
-  if (req.method !== 'POST' || req.method !== 'OPTIONS') {
+  if (req.method !== 'POST' && req.method !== 'OPTIONS') {
     return res.status(405).send('Method Not Allowed');
   }
 
