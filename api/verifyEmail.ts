@@ -12,7 +12,7 @@ const ses = new AWS.SES(); // Tạo instance SES
 
 module.exports = async (req, res) => {
   // Kiểm tra nếu phương thức không phải POST
-  if (req.method !== 'POST') {
+  if (req.method !== 'POST' || req.method !== 'OPTIONS') {
     return res.status(405).send({ error: 'Method Not Allowed. Use POST instead.' });
   }
 

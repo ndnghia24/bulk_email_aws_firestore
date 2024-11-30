@@ -53,7 +53,7 @@ const createEmailBody = (email: string, location: string, weatherData: any) => {
 };
 
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
+  if (req.method !== 'POST' || req.method !== 'OPTIONS') {
     return res.status(405).send('Method Not Allowed');
   }
 
